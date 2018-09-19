@@ -1,0 +1,48 @@
+#
+# These are the default values for varios settings.
+# Do not change them here unless you want them to be used for everyone
+# If you wish to have local setting for yourself, add local.environment
+# file and place your local overrides there. local.environment should not
+# be committed
+#
+
+export HOSTNAME="${HOSTNAME:-127.0.0.1}"
+
+export WEB_PORT=5000
+export SSL_KEY="certs/dev/dev_work-secure_com.key"
+export SSL_CERT="certs/dev/ssl-bundle.crt"
+
+
+export WORK_DIR=work
+
+export REDIS_PORT="6379"
+export REDIS_CACHE_DB=3
+export REDIS_QUEUE_DB=0
+export REDIS_STATS_DB=1
+
+export DEBUG_STATE="True"
+export WEB_PAGE_SIZE=50
+
+export PG_DATABASE="updater_db"
+export PG_HOST="localhost"
+export PG_PORT="5432"
+export PG_USER="admin"
+export PG_PASS="123"
+export PG_START_YEAR=2002
+export REDIS_HOST="localhost"
+
+export KILL_PYTHON_BEFORE=False
+
+export CACHE_TTL_INSEC=172800
+
+export MONGO_HOST="localhost"
+export MONGO_PORT="27017"
+export MONGO_DB="surepatch"
+export MONGO_USER=""
+export MONGO_PASSWORD=""
+
+export UPDATER_RUNTIME="1:00"
+
+export PROD='no'
+export LOAD_FROM_FIXTURE='yes'
+export SHOW_MONITOR_PING='yes'
