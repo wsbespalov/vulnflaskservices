@@ -17,3 +17,5 @@ SOURCE_MODULE = '[{0}] :: '.format(get_module_name(__file__))
 
 p = call(["python", "./plugins/plg_cwe_updater.py"])
 
+# Scheduler budet tut!!!
+

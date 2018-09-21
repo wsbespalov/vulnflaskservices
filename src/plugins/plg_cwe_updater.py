@@ -84,14 +84,16 @@ class CWEUpdater(Subject, Updater):
     parsed_items = []
     response_from_source = None
     disk_cache = None
+    collection = ''
 
     def __init__(self):
         self.disk_cache = Deque(directory=disk_cache_file)
+        self.collection = MODULE_NAME + '::cache'
         super(CWEUpdater, self).__init__()
 
     def start(self):
         LOGINFO_IF_ENABLED(SOURCE_MODULE, '[s] Step: start')
-        pass
+        return True
 
     def pending(self):
         LOGINFO_IF_ENABLED(SOURCE_MODULE, '[s] Step: pending')
@@ -137,7 +139,7 @@ class CWEUpdater(Subject, Updater):
         LOGINFO_IF_ENABLED(SOURCE_MODULE, '[s] Step: caching_local')
         try:
 
-            self.disk_cache.clear()
+            # self.disk_cache.clear() # ?
 
             for data in self.parsed_items:
                 self.disk_cache.append(data)
@@ -156,10 +158,8 @@ class CWEUpdater(Subject, Updater):
     def caching_global(self):
         LOGINFO_IF_ENABLED(SOURCE_MODULE, '[s] Step: caching_global')
         try:
-            collection = MODULE_NAME + '::cache'
-
             try:
-                store.delete(collection)
+                store.delete(self.collection)
             except Exception as ex:
                 LOGERR_IF_ENABLED(SOURCE_MODULE, '[-] Got exception with delete Redis collection: {}'.format(ex))
                 return False
@@ -172,11 +172,16 @@ class CWEUpdater(Subject, Updater):
                     return False
 
                 try:
-                    store.rpush(collection, json.dumps(data))
+                    store.rpush(self.collection, json.dumps(data))
                 except Exception as ex:
                     LOGERR_IF_ENABLED(SOURCE_MODULE, '[-] Got exception with write Redis: {}'.format(ex))
                     return False
-            if store.llen(collection) == len(self.parsed_items):
+            if store.llen(self.collection) == len(self.parsed_items):
+                try:
+                    self.disk_cache.clear()
+                except Exception as ex:
+                    LOGERR_IF_ENABLED(SOURCE_MODULE, '[e] Got exception with disk cache delete: {}'.format(ex))
+                    return False
                 LOGINFO_IF_ENABLED(SOURCE_MODULE, '[+] Caching global complete')
                 return True
             else:
@@ -189,13 +194,6 @@ class CWEUpdater(Subject, Updater):
     def write_database(self):
         LOGINFO_IF_ENABLED(SOURCE_MODULE, '[s] Step: write_database')
         return True
-        # LOGINFO_IF_ENABLED(SOURCE_MODULE, '[s] Step: write_database')
-        # try:
-        #     LOGINFO_IF_ENABLED(SOURCE_MODULE, '[+] Write database complete')
-        #     return True
-        # except Exception as ex:
-        #     LOGERR_IF_ENABLED(SOURCE_MODULE, '[-] Got exception with caching global: {}'.format(ex))
-        #     return False
 
     def idle(self):
         LOGINFO_IF_ENABLED(SOURCE_MODULE, '[s] Step: idle')
