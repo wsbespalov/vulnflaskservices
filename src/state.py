@@ -7,10 +7,10 @@ class State(enum.Enum):
     parsing = 4
     caching_local = 5
     caching_global = 6
-    finish = 7
-    idle = 8
-    undefined = 9
-    write_database = 10
+    write_database = 7
+    finish = 8
+    idle = 9
+    undefined = 10
 
 
 def decode(state):
@@ -78,7 +78,7 @@ def check(state):
 
 def step(state):
     """
-    Start -> Pending -> Downloading -> Parsing -> Caching -> Caching -> Write Database -> Finish -> Idle -
+    Start -> Pending -> Downloading -> Parsing -> Caching -> Caching -> Write Database -> Finish -> Idle --
     ^                                                                                                     |
     +--------[SCHEDULER]----------------------------------------------------------------------------------+
 
@@ -86,6 +86,8 @@ def step(state):
         Some states may be empty
 
     """
+    if state is None:
+        return State.start.value
     if state == State.start.value:
         return State.pending.value
     if state == State.pending.value:

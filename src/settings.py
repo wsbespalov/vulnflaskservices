@@ -62,6 +62,13 @@ SETTINGS = {
         "charset": "utf-8",
         "decode_responses": True,
     },
+    "store": {
+        "host": 'localhost',
+        "port": 6379,
+        "db": 2,
+        "charset": "utf-8",
+        "decode_responses": True,
+    },
     "mongo": {
         "host": "localhost",
         "port": 27017,

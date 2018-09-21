@@ -8,21 +8,25 @@ from logger import LOGINFO_IF_ENABLED, LOGERR_IF_ENABLED
 
 SOURCE_MODULE = '[{0}] :: '.format(get_module_name(__file__))
 
-
 cache_local_settings = SETTINGS.get("cache", {})
 cache_default_host = cache_local_settings.get("host", "localhost")
 cache_default_port = cache_local_settings.get("port", 6379)
 cache_default_db = cache_local_settings.get("db", 3)
 
-queue_local_settings = SETTINGS.get("queue", {})
-queue_default_host = queue_local_settings.get("host", "localhost")
-queue_default_port = queue_local_settings.get("port", 6379)
-queue_defailt_db = queue_local_settings.get("db", 0)
+store_local_settings = SETTINGS.get("store", {})
+store_default_host = store_local_settings.get("host", "localhost")
+store_default_port = store_local_settings.get("port", 6379)
+store_default_db = store_local_settings.get("db", 2)
 
 stats_local_settings = SETTINGS.get("stats", {})
 stats_default_host = stats_local_settings.get("host", "localhost")
 stats_default_port = stats_local_settings.get("port", 6379)
 stats_defailt_db = stats_local_settings.get("db", 1)
+
+queue_local_settings = SETTINGS.get("queue", {})
+queue_default_host = queue_local_settings.get("host", "localhost")
+queue_default_port = queue_local_settings.get("port", 6379)
+queue_defailt_db = queue_local_settings.get("db", 0)
 
 cache_host = os.environ.get("REDIS_HOST", cache_default_host)
 cache_port = os.environ.get("REDIS_PORT", cache_default_port)
@@ -36,6 +40,10 @@ stats_host = os.environ.get("REDIS_HOST", stats_default_host)
 stats_port = os.environ.get("REDIS_PORT", stats_default_port)
 stats_db = os.environ.get("REDIS_STATS_DB", stats_defailt_db)
 
+store_host = os.environ.get("REDIS_HOST", store_default_host)
+store_port = os.environ.get("REDIS_PORT", store_default_port)
+store_db = os.environ.get("REDIS_CACHE_DB", store_default_db)
+
 queue_charset = queue_local_settings.get("charset", "utf-8")
 queue_decode_responses = queue_local_settings.get("decode_responses", True)
 
@@ -44,6 +52,9 @@ cache_decode_responses = queue_decode_responses
 
 stats_charset = stats_local_settings.get("charset", "utf-8")
 stats_decode_responses = stats_local_settings.get("decode_responses", True)
+
+store_charset = store_local_settings.get("charset", "utf-8")
+store_decode_responses = store_local_settings.get("decode_responses", True)
 
 helpers_collection_name = SETTINGS.get("helpers_collection", "helpers_collection")
 
@@ -71,6 +82,18 @@ cache = redis.StrictRedis(
     charset=cache_charset,
     decode_responses=cache_decode_responses
 )
+
+store = redis.StrictRedis(
+    host=store_host,
+    port=store_port,
+    db=store_db,
+    charset=store_charset,
+    decode_responses=store_decode_responses
+)
+
+##############################################################################
+# Redis
+##############################################################################
 
 
 def set_ping_counter(value):

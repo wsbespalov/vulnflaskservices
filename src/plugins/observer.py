@@ -2,16 +2,22 @@ import os
 import sys
 import abc
 import json
-
+import redis
+from datetime import datetime
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from logger import LOGINFO_IF_ENABLED
 from logger import LOGERR_IF_ENABLED
+from utils import get_module_name
 
 from caches import stats as stats_cache
 
 from state import State
 from state import decode as decode_state
+
+MODULE_NAME = get_module_name(__file__)
+SOURCE_MODULE = '[{0}] :: '.format(MODULE_NAME)
+
 
 class Observer(metaclass=abc.ABCMeta):
 
@@ -20,7 +26,7 @@ class Observer(metaclass=abc.ABCMeta):
         self._observer_state = None
 
     @abc.abstractmethod
-    def update(self, arg, msg=''):
+    def update(self, state):
         pass
 
 
@@ -55,7 +61,11 @@ class RedisObserver(Observer):
 
     def update(self, state):
         self._observer_state = state
-        self._cache.set(self._collection_name, decode_state(state))
+        try:
+            return self._cache.set(self._collection_name, decode_state(state))
+        except redis.ConnectionError as ce:
+            LOGERR_IF_ENABLED(SOURCE_MODULE, '[e] Redis ConnectionError exception: {}'.format(ce))
+            return 0
 
 
 class RedisHistoryObserver(Observer):
@@ -72,5 +82,13 @@ class RedisHistoryObserver(Observer):
         super(RedisHistoryObserver, self).__init__()
 
     def update(self, state):
+        def dt_converter(o):
+            if isinstance(o, datetime):
+                return o.__str__()
         self._observer_state = state
-        self._cache.rpush(self._collection_name, decode_state(state))
+        message = {"state": decode_state(state), "ts": datetime.utcnow()}
+        try:
+            self._cache.rpush(self._collection_name, json.dumps(message, default=dt_converter))
+        except redis.ConnectionError as ce:
+            LOGERR_IF_ENABLED(SOURCE_MODULE, '[e] Redis ConnectionError exception: {}'.format(ce))
+            return 0
