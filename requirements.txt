@@ -32,6 +32,6 @@ six==1.11.0
 snowballstemmer==1.2.1
 SQLAlchemy==1.2.8
 tqdm==4.24.0
-urllib3==1.22
+urllib3==1.26.5
 Werkzeug==0.14.1
 yapf==0.22.0
